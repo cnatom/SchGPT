@@ -6,15 +6,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter, TextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
-
 from store.faiss import FAISSStore
-
-
-# 从文本文件中读取文档
-def read_txt_from_file(file_path: str) -> str:
-    with open(file_path, 'r', encoding='utf-8') as file:
-        return file.read()
-
 
 def initialize_faiss_index_from_file(store: FAISSStore, spliter: TextSplitter, data_file_path: str,
                                      index_file_path: str) -> FAISSStore:
@@ -53,9 +45,9 @@ def initialize_faiss_index_from_file(store: FAISSStore, spliter: TextSplitter, d
 
 
 if __name__ == '__main__':
-    llm = OllamaLLM(model="qwen2.5:3b-instruct")
+    question = "学校“十五五”发展规划的主要目标是什么？"
+    llm = OllamaLLM(model="qwen2.5:7b-instruct")
     embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3")
-    question = "刘波是谁"
     # 创建 ChatPromptTemplate
     system_prompt = ("你是中国矿业大学的问答助手。"
                      "使用以下从中国矿业大学的网站上检索到的上下文片段来回答问题。"
