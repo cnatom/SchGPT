@@ -18,18 +18,16 @@ if __name__ == '__main__':
     embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3")
 
     # 创建 ChatPromptTemplate
-    system_prompt = ("你是中国矿业大学的问答助手。"
-                     "请在以下提供的上下文中寻找答案。"
-                     "如果你在上下文中找不到答案，请说'我不知道'。"
-                     "最多用三个句子回答问题，并保持回答简洁。"
-                     "\n\n"
-                     "{context}")
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", system_prompt),
-            ("human", "{input}"),
-        ]
-    )
+    system_prompt = """你是中国矿业大学的问答助手。
+                     请在以下提供的上下文中寻找答案。
+                     如果你在上下文中找不到答案，请说'我不知道'。
+                     最多用三个句子回答问题，并保持回答简洁。
+                     
+                     {context}
+                     
+                     用户的问题：{question}"""
+
+    prompt = ChatPromptTemplate.from_template(system_prompt)
 
     # FAISS 存储路径
     index_file_path = "faiss_index"
@@ -62,7 +60,7 @@ if __name__ == '__main__':
     retriever = vector_store.index.as_retriever(search_kwargs={"k": 3})
 
     # 文档格式化函数
-    def format_docs(doc_list:List[Document]):
+    def format_docs(doc_list: List[Document]):
         formatted_docs = []
         index = 1
         for doc in doc_list:
@@ -74,12 +72,12 @@ if __name__ == '__main__':
 
     # 创建 RAG chain
     rag_chain = (
-            {"context": retriever | format_docs, "input": RunnablePassthrough()}
+            {"context": retriever | format_docs, "question": RunnablePassthrough()}
             | prompt
             | llm
             | StrOutputParser()
     )
 
     # 执行问题查询
-    response = rag_chain.invoke("近十天的新闻有哪些？", config={"callbacks": [ChainCallback()]})
+    response = rag_chain.invoke("赵宏伟什么时候被任命为校长的？", config={"callbacks": [ChainCallback()]})
     print(response)
