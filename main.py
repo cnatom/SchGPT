@@ -106,9 +106,6 @@ if __name__ == '__main__':
             | StrOutputParser()
     )
 
-    # def output_parser(output:Output):
-    #     pass
-
     # 执行问题查询
     response = rag_chain.invoke("什么时候举办军训动员大会", config={"callbacks": [ChainCallback()]})
     print(response)
