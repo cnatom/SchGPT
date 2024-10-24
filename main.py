@@ -1,3 +1,4 @@
+import datetime
 import os
 import pickle  # 用于序列化
 from typing import List
@@ -22,8 +23,15 @@ def format_docs(doc_list: List[Document]):
     formatted_docs = []
     index = 1
     for doc in doc_list:
-        source = doc.metadata.get("source", "未知来源")  # 从 metadata 获取文档的来源
-        content_with_citation = f"第{index}篇文章(来源: {source})：\n\n{doc.page_content}"
+        source = doc.metadata.get("source", "未知来源")
+        title = doc.metadata.get("title", "未知标题")
+        date = doc.metadata.get("date", "未知发布时间")
+        content_with_citation = (
+            f"第{index}篇信息\n"
+            f"标题:{title}\n"
+            f"来源url:{source}\n"
+            f"发布时间:{date}\n"
+            f"内容：{doc.page_content}")
         formatted_docs.append(content_with_citation)
         index += 1  # 增加索引
     return "\n\n".join(formatted_docs)
@@ -64,11 +72,12 @@ if __name__ == '__main__':
     embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3")
 
     # 创建 ChatPromptTemplate
-    system_prompt = """你是中国矿业大学的问答助手。用以下几段检索到的信息回答问题，保持答案简洁。
-                     问题：{question}
-                     信息：{context}
-
-                     答案："""
+    system_prompt = ("你是中国矿业大学的问答助手。\n"
+                     "用以下几段检索到的信息回答问题，保持答案简洁。\n"
+                     f"现在的时间:{datetime.datetime.now()}\n"
+                     "问题：{question}\n"
+                     "信息：{context}\n\n"
+                     "答案：")
 
     prompt = ChatPromptTemplate.from_template(system_prompt)
 
@@ -97,6 +106,9 @@ if __name__ == '__main__':
             | StrOutputParser()
     )
 
+    # def output_parser(output:Output):
+    #     pass
+
     # 执行问题查询
-    response = rag_chain.invoke("宋学峰是谁，他最近在干嘛", config={"callbacks": [ChainCallback()]})
+    response = rag_chain.invoke("什么时候举办军训动员大会", config={"callbacks": [ChainCallback()]})
     print(response)

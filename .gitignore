@@ -9,3 +9,5 @@ data/*
 !data/raw/
 
 !data/raw/cumt_news.json
+
+models/*
