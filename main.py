@@ -19,20 +19,17 @@ if __name__ == '__main__':
     llm = ChatOpenAI(
         openai_api_key=os.environ.get("ARK_API_KEY"),
         openai_api_base="https://ark.cn-beijing.volces.com/api/v3",
-        model_name="ep-20240618040048-lq8tb"
+        model_name="ep-20241024122147-th778"
     )
 
     embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3")
 
     # 创建 ChatPromptTemplate
-    system_prompt = """你是中国矿业大学的问答助手。
-                     回答时直接给出答案，不要提及“根据文中信息”或类似的短语，
-                     就假装你不知道上下文，不要出现"文中未提及"等类似回答
+    system_prompt = """你是中国矿业大学的问答助手。用以下几段检索到的信息回答问题，保持答案简洁。
+                     问题：{question}
+                     信息：{context}
                      
-                     以下是上下文：
-                     {context}
-                     
-                     {question}"""
+                     答案："""
 
     prompt = ChatPromptTemplate.from_template(system_prompt)
 
