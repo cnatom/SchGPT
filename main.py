@@ -19,13 +19,13 @@ if __name__ == '__main__':
 
     # 创建 ChatPromptTemplate
     system_prompt = """你是中国矿业大学的问答助手。
-                     请在以下提供的上下文中寻找答案。
-                     如果你在上下文中找不到答案，请说'我不知道'。
-                     最多用三个句子回答问题，并保持回答简洁。
+                     回答时直接给出答案，不要提及“根据文中信息”或类似的短语，
+                     就假装你不知道上下文，不要出现"文中未提及"等类似回答
                      
+                     以下是上下文：
                      {context}
                      
-                     用户的问题：{question}"""
+                     {question}"""
 
     prompt = ChatPromptTemplate.from_template(system_prompt)
 
@@ -79,5 +79,5 @@ if __name__ == '__main__':
     )
 
     # 执行问题查询
-    response = rag_chain.invoke("赵宏伟什么时候被任命为校长的？", config={"callbacks": [ChainCallback()]})
+    response = rag_chain.invoke("赵宏伟什么时候被任命为校长的？前任校长为什么辞职了", config={"callbacks": [ChainCallback()]})
     print(response)
