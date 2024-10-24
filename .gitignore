@@ -2,5 +2,10 @@
 __pycache__/
 
 *.pyc
-data/
 .env
+
+data/*
+
+!data/raw/
+
+!data/raw/cumt_news.json
