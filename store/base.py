@@ -1,5 +1,9 @@
+import os
 from abc import ABC, abstractmethod
 from typing import List, Any
+
+from langchain_core.documents import Document
+from langchain_core.retrievers import BaseRetriever
 
 
 class BaseVectorStore(ABC):
@@ -14,11 +18,21 @@ class BaseVectorStore(ABC):
         pass
 
     @abstractmethod
-    def add_documents(self, documents: List[str]) -> None:
-        """向向量存储中添加文档"""
+    def as_retriever(self) -> BaseRetriever:
+        """将向量存储转换为检索器"""
         pass
 
     @abstractmethod
-    def search(self, query: str, top_k: int) -> List[Any]:
-        """进行相似性搜索，返回前 K 个结果"""
+    def add_documents(self, documents: List[Document]) -> None:
+        """向向量存储中添加文档"""
         pass
+
+    def load_or_create_index(self, index_path: str, documents: List[Document]) -> None:
+        """加载现有的 FAISS 索引，或根据提供的文档创建新的索引。"""
+        if os.path.exists(index_path):
+            print("检测到已有的索引。")
+            self.load(index_path)
+        else:
+            print("未找到索引，正在创建新的索引...")
+            self.add_documents(documents)
+            self.save(index_path)
