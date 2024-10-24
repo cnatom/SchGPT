@@ -2,18 +2,22 @@ import datetime
 import os
 import pickle  # 用于序列化
 from typing import List
+
+import jieba
 from dotenv import load_dotenv
 from langchain_community.document_loaders import JSONLoader
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 from chain_callback import ChainCallback
 from store.bm25 import BM25Store
 from store.faiss import FAISSStore
 from langchain.retrievers import EnsembleRetriever
+
+from util.stopword_util import StopwordUtil
 
 load_dotenv()  # 加载 .env 文件
 from langchain_openai import ChatOpenAI
@@ -69,8 +73,6 @@ if __name__ == '__main__':
         model_name="ep-20241024122147-th778"
     )
 
-    embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3")
-
     # 创建 ChatPromptTemplate
     system_prompt = ("你是中国矿业大学的问答助手。\n"
                      "用以下几段检索到的信息回答问题，保持答案简洁。\n"
@@ -86,17 +88,17 @@ if __name__ == '__main__':
                              serialize_document_path='data/serialized/serialized_docs.pkl')
 
     print("创建 faiss_retriever...")
-    faiss_store = FAISSStore(embeddings)
+    faiss_store = FAISSStore(embedding_model_name="BAAI/bge-m3")
     faiss_store.load_or_create_index(index_path="data/index/faiss", documents=docs_all)
     faiss_retriever = faiss_store.as_retriever()
 
     print("创建 bm25_retriever...")
-    bm25_store = BM25Store()
+    bm25_store = BM25Store(preprocess_func=StopwordUtil(stopwords_path="data/stopwords.txt").chinese_tokenizer)
     bm25_store.load_or_create_index(index_path='data/index/bm25', documents=docs_all)
     bm25_retriever = bm25_store.as_retriever()
 
     print("创建 EnsembleRetriever...")
-    ensemble_retriever = EnsembleRetriever(retrievers=[faiss_retriever, bm25_retriever])
+    ensemble_retriever = EnsembleRetriever(retrievers=[faiss_retriever, bm25_retriever], weights=[0.4, 0.6])
 
     # 创建 RAG chain
     rag_chain = (
@@ -107,5 +109,5 @@ if __name__ == '__main__':
     )
 
     # 执行问题查询
-    response = rag_chain.invoke("什么时候举办军训动员大会", config={"callbacks": [ChainCallback()]})
+    response = rag_chain.invoke("刘波在2024年7月做了哪些事情", config={"callbacks": [ChainCallback()]})
     print(response)

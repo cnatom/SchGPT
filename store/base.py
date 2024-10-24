@@ -28,7 +28,7 @@ class BaseVectorStore(ABC):
         pass
 
     def load_or_create_index(self, index_path: str, documents: List[Document]) -> None:
-        """加载现有的 FAISS 索引，或根据提供的文档创建新的索引。"""
+        """加载现有的索引，或根据提供的文档创建新的索引。"""
         if os.path.exists(index_path):
             print("检测到已有的索引。")
             self.load(index_path)

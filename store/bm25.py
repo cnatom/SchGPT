@@ -1,6 +1,6 @@
 import os
 import pickle
-from typing import List, Union
+from typing import List, Union, Callable
 
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
@@ -10,9 +10,10 @@ from store import BaseVectorStore
 
 
 class BM25Store(BaseVectorStore):
-    def __init__(self):
+    def __init__(self, preprocess_func: Callable[[str], List[str]] = None):
         self.documents: List[Document] = []
         self.retriever: Union[BM25Retriever, None] = None
+        self.preprocess_func = preprocess_func
 
     def load(self, file_path: str) -> None:
         """从文件中加载文档并重建 BM25 检索器。"""
@@ -21,7 +22,7 @@ class BM25Store(BaseVectorStore):
             with open(file_path, 'rb') as f:
                 self.documents = pickle.load(f)
             # 重建 BM25 检索器
-            self.retriever = BM25Retriever.from_documents(self.documents)
+            self.retriever = BM25Retriever.from_documents(self.documents, preprocess_func=self.preprocess_func)
             print(f"已从加载的文档重建 BM25 检索器。")
         else:
             raise FileNotFoundError(f"文件 {file_path} 不存在")
@@ -49,5 +50,5 @@ class BM25Store(BaseVectorStore):
         print(f"正在向 BM25 检索器添加 {len(documents)} 篇文档...")
         self.documents.extend(documents)
         # 使用更新的文档重建 BM25 检索器
-        self.retriever = BM25Retriever.from_documents(self.documents)
+        self.retriever = BM25Retriever.from_documents(self.documents, preprocess_func=self.preprocess_func)
         print("BM25 检索器已使用新文档更新。")
