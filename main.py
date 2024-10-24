@@ -8,16 +8,15 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_openai import ChatOpenAI
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from chain_callback import ChainCallback
 from store.faiss import FAISSStore
 load_dotenv()  # 加载 .env 文件
+from langchain_openai import ChatOpenAI
 
 if __name__ == '__main__':
     llm = ChatOpenAI(
-        openai_api_key=os.environ.get("ARK_API_KEY"),
         openai_api_base="https://ark.cn-beijing.volces.com/api/v3",
         model_name="ep-20241024122147-th778"
     )
