@@ -1,20 +1,27 @@
 import os
 from typing import List
 
+from dotenv import load_dotenv
 from langchain_community.document_loaders import JSONLoader
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_ollama import OllamaLLM
+from langchain_openai import ChatOpenAI
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from chain_callback import ChainCallback
 from store.faiss import FAISSStore
+load_dotenv()  # 加载 .env 文件
 
 if __name__ == '__main__':
-    llm = OllamaLLM(model="qwen2.5:7b-instruct")
+    llm = ChatOpenAI(
+        openai_api_key=os.environ.get("ARK_API_KEY"),
+        openai_api_base="https://ark.cn-beijing.volces.com/api/v3",
+        model_name="ep-20240618040048-lq8tb"
+    )
+
     embeddings = HuggingFaceEmbeddings(model_name="BAAI/bge-m3")
 
     # 创建 ChatPromptTemplate
