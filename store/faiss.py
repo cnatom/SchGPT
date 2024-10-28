@@ -1,5 +1,5 @@
 import os
-from typing import List, Union
+from typing import List, Union, Any
 
 from langchain_community.vectorstores import FAISS
 from langchain.embeddings.base import Embeddings
@@ -47,10 +47,10 @@ class FAISSStore(BaseVectorStore):
         else:
             raise ValueError("FAISS 索引为空，无法保存。")
 
-    def as_retriever(self) -> VectorStoreRetriever:
+    def as_retriever(self, k: int = 4) -> VectorStoreRetriever:
         """将当前的向量存储转换为检索器。"""
         if self.index is not None:
-            return self.index.as_retriever()
+            return self.index.as_retriever(search_kwargs={'k': k})
         else:
             raise ValueError("FAISS 索引未初始化，无法转换为检索器。")
 

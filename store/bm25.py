@@ -38,9 +38,10 @@ class BM25Store(BaseVectorStore):
         else:
             raise ValueError("没有文档可保存")
 
-    def as_retriever(self) -> BaseRetriever:
+    def as_retriever(self, k: int = 4) -> BaseRetriever:
         """返回 BM25 检索器。"""
         if self.retriever is not None:
+            self.retriever.k = k
             return self.retriever
         else:
             raise ValueError("BM25 检索器尚未初始化")
